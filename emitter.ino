@@ -2,11 +2,12 @@
 // and converts to binary packets before emitting
 // the binary via an attached LED
 
+#define LED_PIN 0
 
 void setup() {
-  serial.Begin(1200);
+        Serial.begin(9600);
 }
 
 void loop() {
-
+        Serial.read();
 }

@@ -4,7 +4,7 @@
 
 
 void setup() {
-  serial.Begin(1200);
+  Serial.begin(9600);
 }
 
 void loop() {
