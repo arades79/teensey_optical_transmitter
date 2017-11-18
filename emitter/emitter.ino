@@ -15,6 +15,7 @@ void setup() {
 }
 
 void loop() {
+        if (Serial.available() > 0) {
         unsigned char payload[PACKET_SIZE];
         unsigned int crc;
 
@@ -30,10 +31,11 @@ void loop() {
 
         crc=gen_crc16(payload + 1, 32);
 
-        Serial.write(crc);
-
         payload[PAYLOAD_LENGTH + 1] = crc >> 8;
         payload[PAYLOAD_LENGTH + 2] = (unsigned char) crc;
+
+        Serial.write(payload);
+}
 }
 
 /*
