@@ -6,17 +6,16 @@
 #define PACKET_SIZE 35
 #define PAYLOAD_LENGTH 32
 #define PREAMBLE 0b10101010
-#define POLY 0x8408
+#define CRC16 0x8005
 
-
-unsigned short crc16(char*, unsigned short);
+unsigned short gen_crc16(const unsigned char*, unsigned short);
 
 void setup() {
         Serial.begin(9600);
 }
 
 void loop() {
-        char payload[PACKET_SIZE];
+        unsigned char payload[PACKET_SIZE];
         unsigned int crc;
 
         payload[0] = PREAMBLE;
@@ -29,7 +28,7 @@ void loop() {
             }
         }
 
-        crc=crc16(payload + 1, 32);
+        crc=gen_crc16(payload + 1, 32);
 
         Serial.write(crc);
 
@@ -46,30 +45,54 @@ void loop() {
 // represent the 17 bit value.
 */
 
-unsigned short crc16(char *data_p, unsigned short length)
+unsigned short gen_crc16(const unsigned char *data, unsigned short size)
 {
-      unsigned char i;
-      unsigned int data;
-      unsigned int crc = 0xffff;
+	unsigned short out = 0;
+	int bits_read = 0, bit_flag;
 
-      if (length == 0)
-            return (~crc);
+	/* Sanity check: */
+	if (data == 0)
+		return 0;
 
-      do
-      {
-            for (i=0, data=(unsigned int)0xff & *data_p++;
-                 i < 8;
-                 i++, data >>= 1)
-            {
-                  if ((crc & 0x0001) ^ (data & 0x0001))
-                        crc = (crc >> 1) ^ POLY;
-                  else  crc >>= 1;
-            }
-      } while (--length);
+	while (size > 0)
+	{
+		bit_flag = out >> 15;
 
-      crc = ~crc;
-      data = crc;
-      crc = (crc << 8) | (data >> 8 & 0xff);
+		/* Get next bit: */
+		out <<= 1;
+		out |= (*data >> bits_read) & 1; // item a) work from the least significant bits
 
-      return (crc);
+										 /* Increment bit counter: */
+		bits_read++;
+		if (bits_read > 7)
+		{
+			bits_read = 0;
+			data++;
+			size--;
+		}
+
+		/* Cycle check: */
+		if (bit_flag)
+			out ^= CRC16;
+
+	}
+
+	// item b) "push out" the last 16 bits
+	int i;
+	for (i = 0; i < 16; ++i) {
+		bit_flag = out >> 15;
+		out <<= 1;
+		if (bit_flag)
+			out ^= CRC16;
+	}
+
+	// item c) reverse the bits
+	unsigned short crc = 0;
+	i = 0x8000;
+	int j = 0x0001;
+	for (; i != 0; i >>= 1, j <<= 1) {
+		if (i & out) crc |= j;
+	}
+
+	return crc;
 }
