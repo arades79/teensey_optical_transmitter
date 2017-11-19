@@ -34,7 +34,7 @@ void loop() {
         payload[PAYLOAD_LENGTH + 1] = crc >> 8;
         payload[PAYLOAD_LENGTH + 2] = (unsigned char) crc;
 
-        Serial.write(crc);
+        Serial.println(payload);
 }
 }
 
