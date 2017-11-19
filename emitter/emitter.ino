@@ -2,7 +2,7 @@
 // and converts to binary packets before emitting
 // the binary via an attached LED
 
-#define LED_PIN 0
+#define LED_PIN 1
 #define PACKET_SIZE 35
 #define PAYLOAD_LENGTH 32
 #define PREAMBLE 0b10101010
@@ -12,6 +12,7 @@
 
 void setup() {
         Serial.begin(9600);
+        pinMode(LED_PIN, OUTPUT);
 }
 
 void loop() {
@@ -19,6 +20,8 @@ void loop() {
 
         char payload[PACKET_SIZE];
         unsigned int crc;
+        char temp_byte;
+        bool led_on;
 
         payload[0] = PREAMBLE;
 
@@ -32,6 +35,16 @@ void loop() {
         payload[PAYLOAD_LENGTH + 2] = (unsigned char) crc;
 
         Serial.print(payload);
+
+        for (int i = 0; i < PACKET_SIZE; i++) {
+                temp_byte = payload[i];
+                for (int j = 7; j >= 0; j--) {
+                  led_on = (temp_byte >> j) & 0b00000001;
+                        digitalWrite(LED_PIN, (led_on ? HIGH : LOW));
+                        delay(6);
+                }
+        }
+        Serial.println("finished tranceiving");
         }
         delay(1000);
 }
