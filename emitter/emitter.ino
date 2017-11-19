@@ -34,19 +34,11 @@ void loop() {
         payload[PAYLOAD_LENGTH + 1] = crc >> 8;
         payload[PAYLOAD_LENGTH + 2] = (unsigned char) crc;
 
-        Serial.write(payload);
+        Serial.write(crc);
 }
 }
 
-/*
-//                                      16   12   5
-// this is the CCITT CRC 16 polynomial X  + X  + X  + 1.
-// This works out to be 0x1021, but the way the algorithm works
-// lets us use 0x8408 (the reverse of the bit pattern).  The high
-// bit is always assumed to be set, thus we only use 16 bits to
-// represent the 17 bit value.
-*/
-
+// not our code - taken from tested CRC16 implementation on github
 unsigned short gen_crc16(const unsigned char *data, unsigned short size)
 {
 	unsigned short out = 0;
@@ -59,12 +51,10 @@ unsigned short gen_crc16(const unsigned char *data, unsigned short size)
 	while (size > 0)
 	{
 		bit_flag = out >> 15;
-
 		/* Get next bit: */
 		out <<= 1;
-		out |= (*data >> bits_read) & 1; // item a) work from the least significant bits
-
-										 /* Increment bit counter: */
+		out |= (*data >> bits_read) & 1;
+                // item a) work from the least significant bits
 		bits_read++;
 		if (bits_read > 7)
 		{
@@ -72,13 +62,10 @@ unsigned short gen_crc16(const unsigned char *data, unsigned short size)
 			data++;
 			size--;
 		}
-
 		/* Cycle check: */
 		if (bit_flag)
 			out ^= CRC16;
-
 	}
-
 	// item b) "push out" the last 16 bits
 	int i;
 	for (i = 0; i < 16; ++i) {
@@ -87,7 +74,6 @@ unsigned short gen_crc16(const unsigned char *data, unsigned short size)
 		if (bit_flag)
 			out ^= CRC16;
 	}
-
 	// item c) reverse the bits
 	unsigned short crc = 0;
 	i = 0x8000;
