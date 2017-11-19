@@ -8,16 +8,16 @@
 #define PREAMBLE 0b10101010
 #define CRC16 0x8005
 
-unsigned short gen_crc16(const unsigned char*, unsigned short);
+//unsigned short gen_crc16(const unsigned char*, unsigned short);
 
 void setup() {
-        Serial.begin(2400);
+        Serial.begin(9600);
 }
 
 void loop() {
         if (Serial.available() > 0) {
 
-        unsigned char payload[PACKET_SIZE];
+        char payload[PACKET_SIZE];
         unsigned int crc;
 
         payload[0] = PREAMBLE;
@@ -26,12 +26,12 @@ void loop() {
                     payload[i + 1] = Serial.read();
         }
 
-        crc=65535
+        crc=65535;
 
         payload[PAYLOAD_LENGTH + 1] = crc >> 8;
         payload[PAYLOAD_LENGTH + 2] = (unsigned char) crc;
 
-        Serial.print("test");
+        Serial.print(payload);
         }
         delay(1000);
 }
