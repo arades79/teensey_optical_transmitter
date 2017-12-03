@@ -2,7 +2,7 @@
 // and converts to binary packets before emitting
 // the binary via an attached LED
 
-#define LED_PIN 1
+#define LED_PIN 11
 #define PACKET_SIZE 35
 #define PAYLOAD_LENGTH 32
 #define PREAMBLE 0b10101010
@@ -41,7 +41,7 @@ void loop() {
                 for (int j = 7; j >= 0; j--) {
                   led_on = (temp_byte >> j) & 0b00000001;
                         digitalWrite(LED_PIN, (led_on ? HIGH : LOW));
-                        delay(6);
+                        delay(60);
                 }
         }
         Serial.println("finished tranceiving");
